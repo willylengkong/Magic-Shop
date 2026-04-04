@@ -1,0 +1,625 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Admin Dashboard — Magic Shop" />
+    <title>Dashboard Admin — Magic Shop</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/admin.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+  </head>
+  <body class="dashboard-body">
+    <div class="dashboard-layout">
+      <!-- ─── SIDEBAR ─────────────────────────────────────────────────────── -->
+      <aside class="sidebar" id="sidebar" aria-label="Navigasi admin">
+        <header class="sidebar-brand">
+          <figure class="sidebar-icon" aria-hidden="true">
+            <i class="fa-solid fa-gamepad"></i>
+          </figure>
+          <div class="sidebar-brand-text">
+            <strong>MAGIC SHOP</strong>
+            <span>Admin Panel</span>
+          </div>
+        </header>
+
+        <nav class="sidebar-nav" aria-label="Menu utama">
+          <ul role="list">
+            <li>
+              <button
+                class="nav-item active"
+                data-section="overview"
+                aria-current="page"
+                aria-controls="section-overview"
+              >
+                <i class="fa-solid fa-chart-pie" aria-hidden="true"></i>
+                <span>Overview</span>
+              </button>
+            </li>
+            <li>
+              <button
+                class="nav-item"
+                data-section="history"
+                aria-controls="section-history"
+              >
+                <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i>
+                <span>History Penjualan</span>
+              </button>
+            </li>
+            <li>
+              <button
+                class="nav-item"
+                data-section="stock"
+                aria-controls="section-stock"
+              >
+                <i class="fa-solid fa-boxes-stacked" aria-hidden="true"></i>
+                <span>Stok Barang</span>
+              </button>
+            </li>
+            <li>
+              <button
+                class="nav-item"
+                data-section="members"
+                aria-controls="section-members"
+              >
+                <i class="fa-solid fa-users" aria-hidden="true"></i>
+                <span>Member</span>
+              </button>
+            </li>
+          </ul>
+        </nav>
+
+        <footer class="sidebar-footer">
+          <div class="admin-profile">
+            <figure class="admin-avatar" aria-hidden="true">
+              <i class="fa-solid fa-user-tie"></i>
+            </figure>
+            <div class="admin-info">
+              <strong id="adminEmail">Admin</strong>
+              <span>Administrator</span>
+            </div>
+          </div>
+          <button
+            class="btn-logout"
+            id="logoutBtn"
+            aria-label="Logout dari akun"
+          >
+            <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
+          </button>
+        </footer>
+      </aside>
+
+      <!-- ─── MAIN WRAPPER ─────────────────────────────────────────────────── -->
+      <div class="main-wrapper">
+        <!-- Topbar -->
+        <header class="topbar">
+          <div class="topbar-left">
+            <button
+              class="btn-toggle-sidebar"
+              id="sidebarToggle"
+              aria-label="Toggle sidebar"
+            >
+              <i class="fa-solid fa-bars" aria-hidden="true"></i>
+            </button>
+            <nav class="breadcrumb" aria-label="Breadcrumb">
+              <ol>
+                <li><span>Magic Shop</span></li>
+                <li aria-current="page">
+                  <span id="breadcrumbLabel">Overview</span>
+                </li>
+              </ol>
+            </nav>
+          </div>
+          <div class="topbar-right">
+            <time
+              class="topbar-date"
+              id="topbarDate"
+              aria-label="Tanggal hari ini"
+            ></time>
+          </div>
+        </header>
+
+        <!-- ─── MAIN CONTENT ────────────────────────────────────────────────── -->
+        <main class="content" id="mainContent">
+          <!-- ══ SECTION: OVERVIEW ══════════════════════════════════════════ -->
+          <section
+            id="section-overview"
+            class="dashboard-section active"
+            aria-labelledby="overview-heading"
+          >
+            <div class="section-header">
+              <h1 id="overview-heading">Dashboard Overview</h1>
+              <p>Ringkasan data terkini Magic Shop</p>
+            </div>
+
+            <!-- Stat Cards -->
+            <div class="stats-grid" role="list" aria-label="Statistik utama">
+              <article
+                class="stat-card card-balance"
+                role="listitem"
+                aria-label="Saldo kas"
+              >
+                <div class="stat-card-inner">
+                  <header class="stat-card-header">
+                    <figure class="stat-icon" aria-hidden="true">
+                      <i class="fa-solid fa-wallet"></i>
+                    </figure>
+                    <span class="stat-label">Saldo Kas</span>
+                  </header>
+                  <p class="stat-value" id="statBalance">
+                    <span class="skeleton"></span>
+                  </p>
+                  <p class="stat-sub">Modal tersedia</p>
+                </div>
+              </article>
+
+              <article
+                class="stat-card card-revenue"
+                role="listitem"
+                aria-label="Total revenue"
+              >
+                <div class="stat-card-inner">
+                  <header class="stat-card-header">
+                    <figure class="stat-icon" aria-hidden="true">
+                      <i class="fa-solid fa-arrow-trend-up"></i>
+                    </figure>
+                    <span class="stat-label">Total Revenue</span>
+                  </header>
+                  <p class="stat-value" id="statRevenue">
+                    <span class="skeleton"></span>
+                  </p>
+                  <p class="stat-sub">Akumulasi penjualan</p>
+                </div>
+              </article>
+
+              <article
+                class="stat-card card-stock"
+                role="listitem"
+                aria-label="Total stok"
+              >
+                <div class="stat-card-inner">
+                  <header class="stat-card-header">
+                    <figure class="stat-icon" aria-hidden="true">
+                      <i class="fa-solid fa-boxes-stacked"></i>
+                    </figure>
+                    <span class="stat-label">Total Stok</span>
+                  </header>
+                  <p class="stat-value" id="statStock">
+                    <span class="skeleton"></span>
+                  </p>
+                  <p class="stat-sub">Unit tersedia</p>
+                </div>
+              </article>
+
+              <article
+                class="stat-card card-members"
+                role="listitem"
+                aria-label="Total member"
+              >
+                <div class="stat-card-inner">
+                  <header class="stat-card-header">
+                    <figure class="stat-icon" aria-hidden="true">
+                      <i class="fa-solid fa-users"></i>
+                    </figure>
+                    <span class="stat-label">Total Member</span>
+                  </header>
+                  <p class="stat-value" id="statMembers">
+                    <span class="skeleton"></span>
+                  </p>
+                  <p class="stat-sub">Pelanggan terdaftar</p>
+                </div>
+              </article>
+            </div>
+
+            <!-- Quick nav cards -->
+            <div class="quick-nav" aria-label="Akses cepat menu">
+              <button class="quick-card" data-section="history">
+                <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i>
+                <span>Lihat History Penjualan</span>
+                <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+              </button>
+              <button class="quick-card" data-section="stock">
+                <i class="fa-solid fa-boxes-stacked" aria-hidden="true"></i>
+                <span>Kelola Stok Barang</span>
+                <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+              </button>
+              <button class="quick-card" data-section="members">
+                <i class="fa-solid fa-users" aria-hidden="true"></i>
+                <span>Lihat Data Member</span>
+                <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+              </button>
+            </div>
+          </section>
+
+          <!-- ══ SECTION: HISTORY PENJUALAN ════════════════════════════════ -->
+          <section
+            id="section-history"
+            class="dashboard-section"
+            hidden
+            aria-labelledby="history-heading"
+          >
+            <div class="section-header">
+              <div>
+                <h1 id="history-heading">History Penjualan</h1>
+                <p>Riwayat seluruh transaksi penjualan</p>
+              </div>
+            </div>
+
+            <!-- Filter bar -->
+            <div
+              class="filter-bar"
+              role="search"
+              aria-label="Filter history penjualan"
+            >
+              <div class="filter-group">
+                <label for="startDate">Dari Tanggal</label>
+                <input type="date" id="startDate" name="startDate" />
+              </div>
+              <div class="filter-group">
+                <label for="endDate">Sampai Tanggal</label>
+                <input type="date" id="endDate" name="endDate" />
+              </div>
+              <button
+                class="btn-filter"
+                id="btnFilterHistory"
+                aria-label="Terapkan filter tanggal"
+              >
+                <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                <span>Filter</span>
+              </button>
+              <button
+                class="btn-reset"
+                id="btnResetHistory"
+                aria-label="Reset filter"
+              >
+                <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>
+                <span>Reset</span>
+              </button>
+            </div>
+
+            <!-- Table -->
+            <div class="table-wrapper">
+              <table aria-label="Tabel history penjualan">
+                <thead>
+                  <tr>
+                    <th scope="col">Order ID</th>
+                    <th scope="col">Tanggal</th>
+                    <th scope="col">Customer</th>
+                    <th scope="col">Total Item</th>
+                    <th scope="col">Total Harga</th>
+                    <th scope="col">Status</th>
+                  </tr>
+                </thead>
+                <tbody id="historyTableBody">
+                  <tr class="table-loading">
+                    <td colspan="6">
+                      <span class="skeleton"></span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- ══ SECTION: STOK BARANG ══════════════════════════════════════ -->
+          <section
+            id="section-stock"
+            class="dashboard-section"
+            hidden
+            aria-labelledby="stock-heading"
+          >
+            <div class="section-header">
+              <div>
+                <h1 id="stock-heading">Stok Barang</h1>
+                <p>Kelola inventaris barang Magic Shop</p>
+              </div>
+              <div class="section-actions">
+                <button
+                  class="btn-action"
+                  id="btnRestock"
+                  aria-haspopup="dialog"
+                >
+                  <i class="fa-solid fa-cart-plus" aria-hidden="true"></i>
+                  <span>Restock (Beli)</span>
+                </button>
+                <button
+                  class="btn-action btn-secondary"
+                  id="btnManualStock"
+                  aria-haspopup="dialog"
+                >
+                  <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
+                  <span>Tambah Manual</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Table -->
+            <div class="table-wrapper">
+              <table aria-label="Tabel stok barang">
+                <thead>
+                  <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Nama Barang</th>
+                    <th scope="col">Tipe</th>
+                    <th scope="col">Harga Jual</th>
+                    <th scope="col">Stok</th>
+                    <th scope="col">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="stockTableBody">
+                  <tr class="table-loading">
+                    <td colspan="6"><span class="skeleton"></span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- ══ SECTION: MEMBER ═══════════════════════════════════════════ -->
+          <section
+            id="section-members"
+            class="dashboard-section"
+            hidden
+            aria-labelledby="members-heading"
+          >
+            <div class="section-header">
+              <div>
+                <h1 id="members-heading">Data Member</h1>
+                <p>Daftar seluruh pelanggan terdaftar</p>
+              </div>
+            </div>
+
+            <!-- Search bar -->
+            <div class="filter-bar" role="search" aria-label="Cari member">
+              <div class="filter-group filter-grow">
+                <label for="searchMember">Cari Member</label>
+                <div class="input-search-wrap">
+                  <i
+                    class="fa-solid fa-magnifying-glass"
+                    aria-hidden="true"
+                  ></i>
+                  <input
+                    type="search"
+                    id="searchMember"
+                    name="searchMember"
+                    placeholder="Cari berdasarkan nama atau email..."
+                    autocomplete="off"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- Table -->
+            <div class="table-wrapper">
+              <table aria-label="Tabel data member">
+                <thead>
+                  <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Role</th>
+                    <th scope="col">Total Order</th>
+                  </tr>
+                </thead>
+                <tbody id="membersTableBody">
+                  <tr class="table-loading">
+                    <td colspan="4"><span class="skeleton"></span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <!-- ─── MODAL: RESTOCK (BELI) ──────────────────────────────────────────── -->
+    <dialog
+      id="modalRestock"
+      aria-labelledby="modalRestockTitle"
+      aria-modal="true"
+    >
+      <article class="modal-card">
+        <header class="modal-header">
+          <h2 id="modalRestockTitle">
+            <i class="fa-solid fa-cart-plus" aria-hidden="true"></i>
+            Restock Barang
+          </h2>
+          <button
+            class="modal-close"
+            aria-label="Tutup dialog"
+            data-close="modalRestock"
+          >
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+          </button>
+        </header>
+
+        <p class="modal-desc">
+          Stok bertambah · Saldo berkurang sesuai harga beli
+        </p>
+
+        <form id="formRestock" novalidate aria-label="Form restock barang">
+          <fieldset>
+            <legend class="sr-only">Data restock</legend>
+
+            <div class="input-group">
+              <label for="restockItem">Pilih Barang</label>
+              <select
+                id="restockItem"
+                name="restockItem"
+                required
+                aria-required="true"
+                aria-describedby="restockItem-error"
+              >
+                <option value="">-- Pilih barang --</option>
+              </select>
+              <p
+                id="restockItem-error"
+                class="error-msg"
+                role="alert"
+                aria-live="polite"
+              ></p>
+            </div>
+
+            <div class="input-group">
+              <label for="restockQty">Jumlah Beli</label>
+              <input
+                type="number"
+                id="restockQty"
+                name="restockQty"
+                min="1"
+                placeholder="Masukkan jumlah"
+                required
+                aria-required="true"
+                aria-describedby="restockQty-error"
+              />
+              <p
+                id="restockQty-error"
+                class="error-msg"
+                role="alert"
+                aria-live="polite"
+              ></p>
+            </div>
+
+            <div class="input-group">
+              <label for="restockPrice">Harga Beli per Unit (Rp)</label>
+              <input
+                type="number"
+                id="restockPrice"
+                name="restockPrice"
+                min="0"
+                placeholder="Masukkan harga beli"
+                required
+                aria-required="true"
+                aria-describedby="restockPrice-error"
+              />
+              <p
+                id="restockPrice-error"
+                class="error-msg"
+                role="alert"
+                aria-live="polite"
+              ></p>
+            </div>
+
+            <div
+              class="restock-summary"
+              id="restockSummary"
+              aria-live="polite"
+            ></div>
+          </fieldset>
+
+          <footer class="modal-footer">
+            <button type="button" class="btn-cancel" data-close="modalRestock">
+              Batal
+            </button>
+            <button type="submit" id="btnSubmitRestock" class="btn-primary">
+              <i class="fa-solid fa-cart-plus" aria-hidden="true"></i>
+              <span>Konfirmasi Restock</span>
+            </button>
+          </footer>
+        </form>
+      </article>
+    </dialog>
+
+    <!-- ─── MODAL: TAMBAH STOK MANUAL ─────────────────────────────────────── -->
+    <dialog
+      id="modalManualStock"
+      aria-labelledby="modalManualTitle"
+      aria-modal="true"
+    >
+      <article class="modal-card">
+        <header class="modal-header">
+          <h2 id="modalManualTitle">
+            <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
+            Tambah Stok Manual
+          </h2>
+          <button
+            class="modal-close"
+            aria-label="Tutup dialog"
+            data-close="modalManualStock"
+          >
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+          </button>
+        </header>
+
+        <p class="modal-desc">Stok bertambah · Saldo tidak berubah</p>
+
+        <form
+          id="formManualStock"
+          novalidate
+          aria-label="Form tambah stok manual"
+        >
+          <fieldset>
+            <legend class="sr-only">Data tambah stok manual</legend>
+
+            <div class="input-group">
+              <label for="manualItem">Pilih Barang</label>
+              <select
+                id="manualItem"
+                name="manualItem"
+                required
+                aria-required="true"
+                aria-describedby="manualItem-error"
+              >
+                <option value="">-- Pilih barang --</option>
+              </select>
+              <p
+                id="manualItem-error"
+                class="error-msg"
+                role="alert"
+                aria-live="polite"
+              ></p>
+            </div>
+
+            <div class="input-group">
+              <label for="manualQty">Jumlah Tambah</label>
+              <input
+                type="number"
+                id="manualQty"
+                name="manualQty"
+                min="1"
+                placeholder="Masukkan jumlah"
+                required
+                aria-required="true"
+                aria-describedby="manualQty-error"
+              />
+              <p
+                id="manualQty-error"
+                class="error-msg"
+                role="alert"
+                aria-live="polite"
+              ></p>
+            </div>
+          </fieldset>
+
+          <footer class="modal-footer">
+            <button
+              type="button"
+              class="btn-cancel"
+              data-close="modalManualStock"
+            >
+              Batal
+            </button>
+            <button type="submit" id="btnSubmitManual" class="btn-primary">
+              <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
+              <span>Simpan</span>
+            </button>
+          </footer>
+        </form>
+      </article>
+    </dialog>
+
+    <!-- Toast global -->
+    <output
+      id="toast"
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
+    ></output>
+
+    <script src="js/config.js"></script>
+    <script src="js/admin.js"></script>
+  </body>
+</html>
