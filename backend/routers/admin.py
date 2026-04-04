@@ -13,12 +13,8 @@ def dashboard():
     total_stock_query = "SELECT COALESCE(SUM(quantity), 0) as total FROM stocks"
     total_stock = fetch_one(total_stock_query)
     
-    member_role_query = "SELECT role_id FROM roles WHERE role_name = 'member'"
-    member_role = fetch_one(member_role_query)
-    member_role_id = member_role["role_id"] if member_role else 2
-    
-    total_member_query = "SELECT COUNT(*) as total FROM users WHERE role_id = %s"
-    total_member = fetch_one(total_member_query, (member_role_id,))
+    total_member_query = "SELECT COUNT(*) as total FROM users"
+    total_member = fetch_one(total_member_query)
     
     total_orders_query = "SELECT COUNT(*) as total FROM orders"
     total_orders = fetch_one(total_orders_query)
@@ -147,26 +143,19 @@ def delete_item(item_id: int):
 
 @router.get("/members")
 def get_members(search: Optional[str] = Query(None)):
-    member_role_query = "SELECT role_id FROM roles WHERE role_name = 'member'"
-    member_role = fetch_one(member_role_query)
-    member_role_id = member_role["role_id"] if member_role else 2
-    
     if search:
         query = """
-            SELECT u.user_id, u.email, u.role_id, r.role_name
-            FROM users u
-            JOIN roles r ON u.role_id = r.role_id
-            WHERE u.role_id = %s AND u.email LIKE %s
+            SELECT user_id, email
+            FROM users
+            WHERE email LIKE %s
         """
-        return fetch_all(query, (member_role_id, f"%{search}%"))
+        return fetch_all(query, (f"%{search}%",))
     else:
         query = """
-            SELECT u.user_id, u.email, u.role_id, r.role_name
-            FROM users u
-            JOIN roles r ON u.role_id = r.role_id
-            WHERE u.role_id = %s
+            SELECT user_id, email
+            FROM users
         """
-        return fetch_all(query, (member_role_id,))
+        return fetch_all(query)
 
 @router.get("/histories")
 def get_login_histories():

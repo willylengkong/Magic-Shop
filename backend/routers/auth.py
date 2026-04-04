@@ -14,8 +14,8 @@ def register(user: UserRegister):
         raise HTTPException(status_code=400, detail="Email sudah terdaftar")
     
     hashed = hash_password(user.password)
-    insert_query = "INSERT INTO users (email, password, role_id) VALUES (%s, %s, %s)"
-    user_id = execute(insert_query, (user.email, hashed, user.role_id))
+    insert_query = "INSERT INTO users (email, password) VALUES (%s, %s)"
+    user_id = execute(insert_query, (user.email, hashed))
     
     return {
         "message": "Registrasi berhasil",
@@ -26,10 +26,9 @@ def register(user: UserRegister):
 @router.post("/login", response_model=LoginResponse)
 def login(user: UserLogin):
     query = """
-        SELECT u.user_id, u.email, u.password, u.role_id, r.role_name 
-        FROM users u 
-        JOIN roles r ON u.role_id = r.role_id 
-        WHERE u.email = %s
+        SELECT user_id, email, password 
+        FROM users 
+        WHERE email = %s
     """
     result = fetch_one(query, (user.email,))
     if not result:
@@ -44,18 +43,15 @@ def login(user: UserLogin):
     return LoginResponse(
         message="Login berhasil",
         user_id=result["user_id"],
-        email=result["email"],
-        role_id=result["role_id"],
-        role_name=result["role_name"]
+        email=result["email"]
     )
 
 @router.get("/user/{user_id}", response_model=UserResponse)
 def get_user(user_id: int):
     query = """
-        SELECT u.user_id, u.email, u.role_id, r.role_name 
-        FROM users u 
-        JOIN roles r ON u.role_id = r.role_id 
-        WHERE u.user_id = %s
+        SELECT user_id, email 
+        FROM users 
+        WHERE user_id = %s
     """
     result = fetch_one(query, (user_id,))
     if not result:

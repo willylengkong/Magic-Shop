@@ -129,8 +129,7 @@ Content-Type: application/json
 
 {
     "email": "newuser@example.com",
-    "password": "password123",
-    "role_id": 2
+    "password": "password123"
 }
 ```
 
@@ -160,9 +159,7 @@ Response:
 {
     "message": "Login berhasil",
     "user_id": 2,
-    "email": "john@example.com",
-    "role_id": 2,
-    "role_name": "member"
+    "email": "john@example.com"
 }
 ```
 
@@ -256,13 +253,13 @@ GET /admin/members?search=john
 
 Semua user memiliki password: `password123`
 
-| Email | Role |
-|-------|------|
-| admin@gamestore.com | Admin |
-| john@example.com | Member |
-| jane@example.com | Member |
-| bob@example.com | Member |
-| alice@example.com | Member |
+| Email |
+|-------|
+| admin@gamestore.com |
+| john@example.com |
+| jane@example.com |
+| bob@example.com |
+| alice@example.com |
 
 ## Features
 
