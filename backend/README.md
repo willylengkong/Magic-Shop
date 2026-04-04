@@ -83,13 +83,16 @@ uvicorn main:app --reload --port 8000
 
 | Method | Endpoint | Deskripsi |
 |--------|----------|-----------|
-| GET | `/admin/dashboard` | Dashboard statistics |
+| GET | `/admin/dashboard` | Dashboard statistics (termasuk saldo) |
+| GET | `/admin/balance` | Get saldo kas saat ini |
+| POST | `/admin/balance` | Update/set saldo kas |
+| POST | `/admin/restock` | Restock item (kurangi saldo, tambah stok) |
 | GET | `/admin/orders` | List semua orders (filter tanggal) |
 | GET | `/admin/items` | List semua items |
 | POST | `/admin/items` | Tambah item baru |
 | PUT | `/admin/items/{id}` | Update item |
 | DELETE | `/admin/items/{id}` | Hapus item |
-| GET | `/admin/members` | List members (search email) |
+| GET | `/admin/members` | List members (search nama/email) |
 | GET | `/admin/histories` | Login histories |
 | GET | `/admin/elements` | List elements |
 | GET | `/admin/types` | List types |
@@ -128,6 +131,7 @@ POST /auth/register
 Content-Type: application/json
 
 {
+    "name": "New User",
     "email": "newuser@example.com",
     "password": "password123"
 }
@@ -138,6 +142,7 @@ Response:
 {
     "message": "Registrasi berhasil",
     "user_id": 11,
+    "name": "New User",
     "email": "newuser@example.com"
 }
 ```
@@ -159,6 +164,7 @@ Response:
 {
     "message": "Login berhasil",
     "user_id": 2,
+    "name": "John Doe",
     "email": "john@example.com"
 }
 ```
@@ -230,10 +236,53 @@ Response:
 ```json
 {
     "total_revenue": 652500.0,
+    "current_balance": 10000000.0,
     "total_stock": 2305,
-    "total_members": 9,
+    "total_members": 10,
     "total_orders": 10,
     "total_items": 50
+}
+```
+
+### Get Balance
+
+```bash
+GET /admin/balance
+```
+
+Response:
+```json
+{
+    "balance_id": 1,
+    "current_balance": 10000000.0,
+    "last_updated": "2024-01-20T10:00:00"
+}
+```
+
+### Restock Item
+
+```bash
+POST /admin/restock
+Content-Type: application/json
+
+{
+    "item_id": 1,
+    "quantity": 50,
+    "unit_price": 10000.0,
+    "notes": "Restock Flame Sword"
+}
+```
+
+Response:
+```json
+{
+    "message": "Restock berhasil",
+    "transaction_id": 1,
+    "item_id": 1,
+    "item_name": "Flame Sword",
+    "quantity": 50,
+    "total_cost": 500000.0,
+    "remaining_balance": 9500000.0
 }
 ```
 
@@ -247,6 +296,17 @@ GET /admin/orders?start_date=2024-01-15&end_date=2024-01-17
 
 ```bash
 GET /admin/members?search=john
+```
+
+Response (search by name or email):
+```json
+[
+    {
+        "user_id": 2,
+        "name": "John Doe",
+        "email": "john@example.com"
+    }
+]
 ```
 
 ## Test Credentials

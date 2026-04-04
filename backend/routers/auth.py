@@ -14,19 +14,20 @@ def register(user: UserRegister):
         raise HTTPException(status_code=400, detail="Email sudah terdaftar")
     
     hashed = hash_password(user.password)
-    insert_query = "INSERT INTO users (email, password) VALUES (%s, %s)"
-    user_id = execute(insert_query, (user.email, hashed))
+    insert_query = "INSERT INTO users (name, email, password) VALUES (%s, %s, %s)"
+    user_id = execute(insert_query, (user.name, user.email, hashed))
     
     return {
         "message": "Registrasi berhasil",
         "user_id": user_id,
+        "name": user.name,
         "email": user.email
     }
 
 @router.post("/login", response_model=LoginResponse)
 def login(user: UserLogin):
     query = """
-        SELECT user_id, email, password 
+        SELECT user_id, name, email, password 
         FROM users 
         WHERE email = %s
     """
@@ -43,13 +44,14 @@ def login(user: UserLogin):
     return LoginResponse(
         message="Login berhasil",
         user_id=result["user_id"],
+        name=result["name"],
         email=result["email"]
     )
 
 @router.get("/user/{user_id}", response_model=UserResponse)
 def get_user(user_id: int):
     query = """
-        SELECT user_id, email 
+        SELECT user_id, name, email 
         FROM users 
         WHERE user_id = %s
     """
