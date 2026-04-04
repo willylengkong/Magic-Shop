@@ -1,7 +1,9 @@
 from fastapi import APIRouter, HTTPException, Query
-from database import fetch_one, fetch_all, execute
+from database import fetch_one, fetch_all, execute, transaction
 from schemas.items import ItemCreate, ItemUpdate, ItemResponse
+from schemas.balance import BalanceResponse, BalanceUpdate, RestockRequest, RestockResponse
 from typing import Optional
+from datetime import datetime
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
 
@@ -13,12 +15,8 @@ def dashboard():
     total_stock_query = "SELECT COALESCE(SUM(quantity), 0) as total FROM stocks"
     total_stock = fetch_one(total_stock_query)
     
-    member_role_query = "SELECT role_id FROM roles WHERE role_name = 'member'"
-    member_role = fetch_one(member_role_query)
-    member_role_id = member_role["role_id"] if member_role else 2
-    
-    total_member_query = "SELECT COUNT(*) as total FROM users WHERE role_id = %s"
-    total_member = fetch_one(total_member_query, (member_role_id,))
+    total_member_query = "SELECT COUNT(*) as total FROM users"
+    total_member = fetch_one(total_member_query)
     
     total_orders_query = "SELECT COUNT(*) as total FROM orders"
     total_orders = fetch_one(total_orders_query)
@@ -26,8 +24,13 @@ def dashboard():
     total_items_query = "SELECT COUNT(*) as total FROM items"
     total_items = fetch_one(total_items_query)
     
+    balance_query = "SELECT current_balance FROM balance ORDER BY balance_id DESC LIMIT 1"
+    balance = fetch_one(balance_query)
+    current_balance = float(balance["current_balance"]) if balance else 0.0
+    
     return {
         "total_revenue": float(total_revenue["total"]),
+        "current_balance": current_balance,
         "total_stock": int(total_stock["total"]),
         "total_members": int(total_member["total"]),
         "total_orders": int(total_orders["total"]),
@@ -147,26 +150,19 @@ def delete_item(item_id: int):
 
 @router.get("/members")
 def get_members(search: Optional[str] = Query(None)):
-    member_role_query = "SELECT role_id FROM roles WHERE role_name = 'member'"
-    member_role = fetch_one(member_role_query)
-    member_role_id = member_role["role_id"] if member_role else 2
-    
     if search:
         query = """
-            SELECT u.user_id, u.email, u.role_id, r.role_name
-            FROM users u
-            JOIN roles r ON u.role_id = r.role_id
-            WHERE u.role_id = %s AND u.email LIKE %s
+            SELECT user_id, name, email
+            FROM users
+            WHERE name LIKE %s OR email LIKE %s
         """
-        return fetch_all(query, (member_role_id, f"%{search}%"))
+        return fetch_all(query, (f"%{search}%", f"%{search}%"))
     else:
         query = """
-            SELECT u.user_id, u.email, u.role_id, r.role_name
-            FROM users u
-            JOIN roles r ON u.role_id = r.role_id
-            WHERE u.role_id = %s
+            SELECT user_id, name, email
+            FROM users
         """
-        return fetch_all(query, (member_role_id,))
+        return fetch_all(query)
 
 @router.get("/histories")
 def get_login_histories():
@@ -185,3 +181,94 @@ def get_elements():
 @router.get("/types")
 def get_types():
     return fetch_all("SELECT * FROM types ORDER BY type_id")
+
+@router.get("/balance", response_model=BalanceResponse)
+def get_balance():
+    query = "SELECT * FROM balance ORDER BY balance_id DESC LIMIT 1"
+    result = fetch_one(query)
+    if not result:
+        raise HTTPException(status_code=404, detail="Saldo belum diinisialisasi")
+    return BalanceResponse(**result)
+
+@router.post("/balance", response_model=dict)
+def update_balance(balance_update: BalanceUpdate):
+    check_query = "SELECT balance_id FROM balance ORDER BY balance_id DESC LIMIT 1"
+    existing = fetch_one(check_query)
+    
+    if existing:
+        update_query = """
+            UPDATE balance 
+            SET current_balance = %s, last_updated = %s 
+            WHERE balance_id = %s
+        """
+        execute(update_query, (balance_update.amount, datetime.now(), existing["balance_id"]))
+        return {
+            "message": "Saldo berhasil diupdate",
+            "new_balance": balance_update.amount
+        }
+    else:
+        insert_query = "INSERT INTO balance (current_balance, last_updated) VALUES (%s, %s)"
+        execute(insert_query, (balance_update.amount, datetime.now()))
+        return {
+            "message": "Saldo berhasil diinisialisasi",
+            "new_balance": balance_update.amount
+        }
+
+@router.post("/restock", response_model=RestockResponse)
+def restock_item(restock: RestockRequest):
+    with transaction() as (cursor, conn):
+        # Check if item exists
+        cursor.execute("SELECT item_id, item_name FROM items WHERE item_id = %s", (restock.item_id,))
+        item = cursor.fetchone()
+        if not item:
+            raise HTTPException(status_code=404, detail="Item tidak ditemukan")
+        
+        # Get current balance
+        cursor.execute("SELECT balance_id, current_balance FROM balance ORDER BY balance_id DESC LIMIT 1")
+        balance = cursor.fetchone()
+        if not balance:
+            raise HTTPException(status_code=400, detail="Saldo belum diinisialisasi")
+        
+        # Calculate total cost
+        total_cost = restock.quantity * restock.unit_price
+        
+        # Check if balance is sufficient
+        if balance["current_balance"] < total_cost:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Saldo tidak cukup. Saldo: Rp{balance['current_balance']:,.2f}, Dibutuhkan: Rp{total_cost:,.2f}"
+            )
+        
+        # Update balance
+        new_balance = balance["current_balance"] - total_cost
+        cursor.execute(
+            "UPDATE balance SET current_balance = %s, last_updated = %s WHERE balance_id = %s",
+            (new_balance, datetime.now(), balance["balance_id"])
+        )
+        
+        # Update stock
+        cursor.execute(
+            "UPDATE stocks SET quantity = quantity + %s WHERE item_id = %s",
+            (restock.quantity, restock.item_id)
+        )
+        
+        # Record transaction
+        cursor.execute(
+            """
+            INSERT INTO restock_transactions 
+            (item_id, quantity, unit_price, total_cost, transaction_time, notes) 
+            VALUES (%s, %s, %s, %s, %s, %s)
+            """,
+            (restock.item_id, restock.quantity, restock.unit_price, total_cost, datetime.now(), restock.notes)
+        )
+        transaction_id = cursor.lastrowid
+        
+        return RestockResponse(
+            message="Restock berhasil",
+            transaction_id=transaction_id,
+            item_id=item["item_id"],
+            item_name=item["item_name"],
+            quantity=restock.quantity,
+            total_cost=total_cost,
+            remaining_balance=new_balance
+        )
