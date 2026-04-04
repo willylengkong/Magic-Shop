@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Login ke Magic Shop — Game Store terpercaya"
+    />
+    <title>Login - Magic Shop</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <!-- Dekoratif, bukan konten — disembunyikan dari screen reader -->
+    <div class="bg-layer" aria-hidden="true">
+      <div class="bg-orb bg-orb-1"></div>
+      <div class="bg-orb bg-orb-2"></div>
+      <div class="bg-orb bg-orb-3"></div>
+    </div>
+
+    <main class="page-wrapper">
+      <article class="auth-card">
+        <!-- Identitas brand -->
+        <header class="brand">
+          <figure class="brand-icon">
+            <i class="fa-solid fa-gamepad" aria-hidden="true"></i>
+          </figure>
+          <h1>MAGIC SHOP</h1>
+          <p class="brand-sub">Game Store</p>
+        </header>
+
+        <!-- Intro halaman login -->
+        <section aria-labelledby="login-heading">
+          <div class="form-header">
+            <h2 id="login-heading">Selamat Datang</h2>
+            <p>Masuk ke akun Anda untuk melanjutkan</p>
+          </div>
+
+          <hr class="divider" />
+
+          <form id="loginForm" novalidate aria-label="Form login">
+            <fieldset>
+              <legend class="sr-only">Kredensial akun</legend>
+
+              <div class="input-group">
+                <label for="email">Email</label>
+                <div class="input-wrap">
+                  <i
+                    class="fa-regular fa-envelope input-icon"
+                    aria-hidden="true"
+                  ></i>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    placeholder="contoh@email.com"
+                    autocomplete="email"
+                    required
+                    aria-required="true"
+                    aria-describedby="email-error"
+                  />
+                </div>
+                <p
+                  id="email-error"
+                  class="error-msg"
+                  role="alert"
+                  aria-live="polite"
+                ></p>
+              </div>
+
+              <div class="input-group">
+                <label for="password">Password</label>
+                <div class="input-wrap">
+                  <i class="fa-solid fa-lock input-icon" aria-hidden="true"></i>
+                  <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="Masukkan password"
+                    autocomplete="current-password"
+                    required
+                    aria-required="true"
+                    aria-describedby="password-error"
+                  />
+                  <button
+                    type="button"
+                    class="toggle-pw"
+                    aria-label="Tampilkan atau sembunyikan password"
+                    data-target="password"
+                  >
+                    <i class="fa-regular fa-eye" aria-hidden="true"></i>
+                  </button>
+                </div>
+                <p
+                  id="password-error"
+                  class="error-msg"
+                  role="alert"
+                  aria-live="polite"
+                ></p>
+              </div>
+            </fieldset>
+
+            <button type="submit" id="loginBtn" class="btn-primary">
+              <i
+                class="fa-solid fa-arrow-right-to-bracket"
+                aria-hidden="true"
+              ></i>
+              <span>Masuk</span>
+            </button>
+          </form>
+        </section>
+
+        <!-- Link navigasi ke register -->
+        <footer class="auth-footer">
+          <p>
+            Belum punya akun?
+            <a href="register.html">Daftar sekarang</a>
+          </p>
+        </footer>
+      </article>
+    </main>
+
+    <!-- Toast notifikasi global -->
+    <output
+      id="toast"
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
+    ></output>
+
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+  </body>
+</html>
