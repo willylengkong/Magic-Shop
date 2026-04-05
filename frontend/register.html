@@ -7,7 +7,7 @@
       name="description"
       content="Daftar akun baru di Magic Shop — Game Store terpercaya"
     />
-    <title>Daftar - Magic Shop</title>
+    <title>Daftar — Magic Shop</title>
     <link rel="stylesheet" href="css/style.css" />
     <link
       rel="stylesheet"
@@ -45,6 +45,29 @@
           <form id="registerForm" novalidate aria-label="Form registrasi">
             <fieldset>
               <legend class="sr-only">Informasi akun baru</legend>
+
+              <div class="input-group">
+                <label for="name">Nama Lengkap</label>
+                <div class="input-wrap">
+                  <i class="fa-solid fa-user input-icon" aria-hidden="true"></i>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    placeholder="Masukkan nama lengkap"
+                    autocomplete="name"
+                    required
+                    aria-required="true"
+                    aria-describedby="name-error"
+                  />
+                </div>
+                <p
+                  id="name-error"
+                  class="error-msg"
+                  role="alert"
+                  aria-live="polite"
+                ></p>
+              </div>
 
               <div class="input-group">
                 <label for="email">Email</label>
