@@ -192,6 +192,7 @@ async function handleRegister(e) {
   e.preventDefault();
   clearAllErrors();
 
+  const name = document.getElementById("name").value.trim();
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
   const confirm = document.getElementById("confirmPassword").value;
@@ -199,6 +200,14 @@ async function handleRegister(e) {
 
   // ── Validasi sisi klien ──
   let isValid = true;
+
+  if (!name) {
+    showFieldError("name", "Nama lengkap tidak boleh kosong");
+    isValid = false;
+  } else if (name.length < 2) {
+    showFieldError("name", "Nama minimal 2 karakter");
+    isValid = false;
+  }
 
   if (!email) {
     showFieldError("email", "Email tidak boleh kosong");
@@ -238,7 +247,7 @@ async function handleRegister(e) {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ email, password, role_id: 2 }),
+      body: JSON.stringify({ name, email, password, role_id: 2 }),
     });
 
     const data = await response.json();
