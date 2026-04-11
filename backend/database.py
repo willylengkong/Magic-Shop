@@ -4,7 +4,7 @@ from typing import Any, Optional
 from contextlib import contextmanager
 
 DB_CONFIG = {
-    "host": "localhost",
+    "host": "76.13.21.186",
     "user": "root",
     "password": "apotek123",
     "database": "game_store_db",
