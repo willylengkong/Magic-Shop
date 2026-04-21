@@ -5,7 +5,7 @@
 
   const user = JSON.parse(raw);
   // role_id 1 = admin
-  if (user.role_id !== 1) return (window.location.href = "home.html");
+  // if (user.role_id !== 1) return (window.location.href = "home.html");
 
   // Tampilkan email admin di sidebar
   const emailEl = document.getElementById("adminEmail");
@@ -166,14 +166,11 @@ function navigateTo(sectionId) {
 
 async function loadOverview() {
   try {
-    // Hit dua endpoint paralel: dashboard stats + balance
-    const [dashboard, balanceData] = await Promise.all([
-      apiFetch("/admin/dashboard"),
-      apiFetch("/admin/balance"),
-    ]);
+    // GET /admin/dashboard → includes total_revenue, current_balance, total_stock, total_members
+    const dashboard = await apiFetch("/admin/dashboard");
 
     document.getElementById("statBalance").textContent = formatRupiah(
-      balanceData.balance ?? 0,
+      dashboard.current_balance ?? 0,
     );
     document.getElementById("statRevenue").textContent = formatRupiah(
       dashboard.total_revenue ?? 0,
@@ -270,9 +267,34 @@ async function loadStock() {
       return;
     }
 
-    tbody.innerHTML = itemsData
-      .map(
-        (item) => `
+    renderStockTable(itemsData);
+
+    // Isi dropdown di modal restock & manual stock
+    populateItemDropdowns(itemsData);
+  } catch (err) {
+    console.error("[Stock Error]", err);
+    tbody.innerHTML = `
+      <tr class="table-empty">
+        <td colspan="6">Gagal memuat data: ${err.message}</td>
+      </tr>`;
+  }
+}
+
+/**
+ * Render baris tabel stok (bisa difilter)
+ */
+function renderStockTable(items) {
+  const tbody = document.getElementById("stockTableBody");
+  if (!items || items.length === 0) {
+    tbody.innerHTML = `
+      <tr class="table-empty">
+        <td colspan="6">Tidak ada barang yang cocok</td>
+      </tr>`;
+    return;
+  }
+  tbody.innerHTML = items
+    .map(
+      (item) => `
         <tr>
           <td>${item.item_id}</td>
           <td>${item.item_name || item.name || "-"}</td>
@@ -285,27 +307,16 @@ async function loadStock() {
           </td>
           <td>
             <button
-              class="btn-reset"
-              style="font-size:0.75rem; padding:0.3rem 0.7rem;"
+              class="btn-stock-add"
               onclick="openManualStockForItem(${item.item_id})"
               aria-label="Tambah stok ${item.item_name || item.name}"
             >
-              +Stok
+              <i class="fa-solid fa-plus" aria-hidden="true"></i> Stok
             </button>
           </td>
         </tr>`,
-      )
-      .join("");
-
-    // Isi dropdown di modal restock & manual stock
-    populateItemDropdowns(itemsData);
-  } catch (err) {
-    console.error("[Stock Error]", err);
-    tbody.innerHTML = `
-      <tr class="table-empty">
-        <td colspan="6">Gagal memuat data: ${err.message}</td>
-      </tr>`;
-  }
+    )
+    .join("");
 }
 
 /**
@@ -341,7 +352,7 @@ async function loadMembers(search = "") {
   const tbody = document.getElementById("membersTableBody");
   tbody.innerHTML = `
     <tr class="table-loading">
-      <td colspan="4"><span class="skeleton"></span></td>
+      <td colspan="5"><span class="skeleton"></span></td>
     </tr>`;
 
   try {
@@ -352,7 +363,7 @@ async function loadMembers(search = "") {
     if (!members || members.length === 0) {
       tbody.innerHTML = `
         <tr class="table-empty">
-          <td colspan="4">${search ? `Tidak ditemukan member dengan kata kunci "${search}"` : "Belum ada member"}</td>
+          <td colspan="5">${search ? `Tidak ditemukan member dengan kata kunci "${search}"` : "Belum ada member"}</td>
         </tr>`;
       return;
     }
@@ -362,6 +373,7 @@ async function loadMembers(search = "") {
         (m) => `
         <tr>
           <td>${m.user_id}</td>
+          <td>${m.name || "-"}</td>
           <td>${m.email || "-"}</td>
           <td>
             <span class="badge ${m.role_id === 1 ? "badge-pending" : "badge-paid"}">
@@ -376,7 +388,7 @@ async function loadMembers(search = "") {
     console.error("[Members Error]", err);
     tbody.innerHTML = `
       <tr class="table-empty">
-        <td colspan="4">Gagal memuat data: ${err.message}</td>
+        <td colspan="5">Gagal memuat data: ${err.message}</td>
       </tr>`;
   }
 }
@@ -450,7 +462,7 @@ async function handleRestock(e) {
       body: JSON.stringify({
         item_id: parseInt(itemId),
         quantity: qty,
-        purchase_price: price,
+        unit_price: price,
       }),
     });
 
@@ -458,6 +470,8 @@ async function handleRestock(e) {
     closeModal("modalRestock");
 
     // Reload data yang terpengaruh
+    const searchStock = document.getElementById("searchStock");
+    if (searchStock) searchStock.value = "";
     loadStock();
     loadOverview();
   } catch (err) {
@@ -508,10 +522,71 @@ async function handleManualStock(e) {
 
     showToast(`Stok berhasil ditambahkan sebanyak ${qty} unit.`, "success");
     closeModal("modalManualStock");
+    const searchStock = document.getElementById("searchStock");
+    if (searchStock) searchStock.value = "";
     loadStock();
   } catch (err) {
     showToast("Tambah stok gagal: " + err.message, "error");
     console.error("[Manual Stock Error]", err);
+  } finally {
+    setLoading(btn, false);
+  }
+}
+
+// ─── FORM: SET SALDO ──────────────────────────────────────────────────────────
+
+async function openSetBalanceModal() {
+  openModal("modalSetBalance");
+
+  // GET /admin/balance → tampilkan saldo saat ini
+  const infoEl = document.getElementById("balanceCurrentInfo");
+  try {
+    const balance = await apiFetch("/admin/balance");
+    if (infoEl) {
+      infoEl.innerHTML = `
+        <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+        <span>Saldo saat ini: <strong>${formatRupiah(balance.current_balance ?? 0)}</strong></span>`;
+    }
+  } catch {
+    if (infoEl) {
+      infoEl.innerHTML = `
+        <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+        <span>Saldo belum diinisialisasi</span>`;
+    }
+  }
+}
+
+async function handleSetBalance(e) {
+  e.preventDefault();
+  clearFormErrors("balanceAmount");
+
+  const amount = parseFloat(document.getElementById("balanceAmount").value);
+  const notes = document.getElementById("balanceNotes").value.trim();
+  const btn = document.getElementById("btnSubmitBalance");
+
+  if (isNaN(amount) || amount < 0) {
+    showFieldError("balanceAmount", "Masukkan jumlah saldo yang valid");
+    return;
+  }
+
+  setLoading(btn, true);
+
+  try {
+    // POST /admin/balance → update/set saldo kas
+    await apiFetch("/admin/balance", {
+      method: "POST",
+      body: JSON.stringify({
+        amount,
+        notes: notes || null,
+      }),
+    });
+
+    showToast(`Saldo berhasil diset ke ${formatRupiah(amount)}`, "success");
+    closeModal("modalSetBalance");
+    loadOverview();
+  } catch (err) {
+    showToast("Gagal set saldo: " + err.message, "error");
+    console.error("[SetBalance Error]", err);
   } finally {
     setLoading(btn, false);
   }
@@ -589,6 +664,10 @@ document.addEventListener("DOMContentLoaded", () => {
     else openModal("modalManualStock");
   });
 
+  document
+    .getElementById("btnSetBalance")
+    ?.addEventListener("click", openSetBalanceModal);
+
   // ── Modal close buttons (data-close attribute) ──
   document.querySelectorAll("[data-close]").forEach((btn) => {
     btn.addEventListener("click", () => closeModal(btn.dataset.close));
@@ -608,6 +687,9 @@ document.addEventListener("DOMContentLoaded", () => {
   document
     .getElementById("formManualStock")
     ?.addEventListener("submit", handleManualStock);
+  document
+    .getElementById("formSetBalance")
+    ?.addEventListener("submit", handleSetBalance);
 
   // ── Filter history ──
   document.getElementById("btnFilterHistory")?.addEventListener("click", () => {
@@ -629,6 +711,17 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("startDate").value = "";
     document.getElementById("endDate").value = "";
     loadHistory();
+  });
+
+  // ── Live search stok barang ──
+  document.getElementById("searchStock")?.addEventListener("input", (e) => {
+    const q = e.target.value.trim().toLowerCase();
+    const filtered = q
+      ? itemsData.filter((item) =>
+          (item.item_name || item.name || "").toLowerCase().includes(q),
+        )
+      : itemsData;
+    renderStockTable(filtered);
   });
 
   // ── Live search member (debounce 400ms) ──

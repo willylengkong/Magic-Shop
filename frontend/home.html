@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Dashboard Member — Magic Shop" />
+    <title>Magic Shop — Dashboard</title>
+    <link rel="stylesheet" href="css/member.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+  </head>
+  <body class="member-body">
+    <!-- ─── TOPBAR ───────────────────────────────────────────────────────────── -->
+    <header class="member-topbar" role="banner">
+      <div class="topbar-brand">
+        <figure class="brand-icon" aria-hidden="true">
+          <i class="fa-solid fa-gamepad"></i>
+        </figure>
+        <strong>MAGIC SHOP</strong>
+      </div>
+
+      <div class="topbar-center" aria-label="Saldo pengguna">
+        <div class="balance-chip">
+          <i class="fa-solid fa-wallet" aria-hidden="true"></i>
+          <span class="balance-label">Saldo</span>
+          <strong id="balanceDisplay"
+            ><span class="skeleton skeleton-sm"></span
+          ></strong>
+          <button
+            class="btn-topup"
+            id="btnTopUp"
+            aria-haspopup="dialog"
+            aria-label="Top Up Saldo"
+          >
+            <i class="fa-solid fa-plus" aria-hidden="true"></i>
+            <span>Top Up</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="topbar-right">
+        <div class="user-chip">
+          <figure class="user-avatar" aria-hidden="true">
+            <i class="fa-solid fa-circle-user"></i>
+          </figure>
+          <div class="user-info">
+            <strong id="userName">—</strong>
+            <span id="userEmail">—</span>
+          </div>
+        </div>
+        <button class="btn-logout" id="logoutBtn" aria-label="Logout">
+          <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- ─── MAIN CONTENT ─────────────────────────────────────────────────────── -->
+    <main class="member-main" id="memberMain">
+      <!-- ══ PRODUCTS SECTION ══════════════════════════════════════════════════ -->
+      <section class="section-products" aria-labelledby="products-heading">
+        <div class="section-title-row">
+          <div>
+            <h2 id="products-heading">
+              <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i>
+              Produk Tersedia
+            </h2>
+            <p>Pilih item magismu dan masukkan ke keranjang</p>
+          </div>
+          <div class="product-filter" role="search" aria-label="Cari produk">
+            <label for="productSearch" class="sr-only">Cari produk</label>
+            <input
+              type="search"
+              id="productSearch"
+              placeholder="Cari produk..."
+              autocomplete="off"
+            />
+          </div>
+        </div>
+
+        <!-- Carousel wrapper -->
+        <div class="carousel-wrapper">
+          <button
+            class="carousel-btn carousel-prev"
+            id="carouselPrev"
+            aria-label="Scroll ke kiri"
+          >
+            <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+          </button>
+
+          <div
+            class="product-carousel"
+            id="productCarousel"
+            role="list"
+            aria-label="Daftar produk"
+          >
+            <!-- Skeleton placeholders -->
+            <div class="product-card skeleton-card" aria-hidden="true"></div>
+            <div class="product-card skeleton-card" aria-hidden="true"></div>
+            <div class="product-card skeleton-card" aria-hidden="true"></div>
+            <div class="product-card skeleton-card" aria-hidden="true"></div>
+            <div class="product-card skeleton-card" aria-hidden="true"></div>
+          </div>
+
+          <button
+            class="carousel-btn carousel-next"
+            id="carouselNext"
+            aria-label="Scroll ke kanan"
+          >
+            <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+          </button>
+        </div>
+      </section>
+
+      <!-- ══ HISTORY SECTION ════════════════════════════════════════════════════ -->
+      <section class="section-history" aria-labelledby="history-heading">
+        <div class="section-title-row">
+          <div>
+            <h2 id="history-heading">
+              <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i>
+              Riwayat Order
+            </h2>
+          </div>
+          <button
+            class="btn-toggle-history"
+            id="btnToggleHistory"
+            aria-expanded="true"
+            aria-controls="historyBody"
+          >
+            <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+            <span>Sembunyikan</span>
+          </button>
+        </div>
+
+        <div class="history-body" id="historyBody">
+          <div class="table-wrapper">
+            <table aria-label="Riwayat order">
+              <thead>
+                <tr>
+                  <th scope="col">Order ID</th>
+                  <th scope="col">Tanggal</th>
+                  <th scope="col">Total</th>
+                  <th scope="col">Status</th>
+                </tr>
+              </thead>
+              <tbody id="historyTableBody">
+                <tr>
+                  <td colspan="4"><span class="skeleton"></span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ─── CART BAR (fixed bottom) ─────────────────────────────────────────── -->
+    <div
+      class="cart-bar"
+      id="cartBar"
+      role="complementary"
+      aria-label="Ringkasan keranjang"
+      hidden
+    >
+      <div class="cart-bar-summary" id="cartBarSummary" role="button" tabindex="0" aria-label="Lihat keranjang" style="cursor:pointer">
+        <figure class="cart-icon-wrap" aria-hidden="true">
+          <i class="fa-solid fa-cart-shopping"></i>
+          <span class="cart-badge" id="cartBadge" aria-label="Jumlah item"
+            >0</span
+          >
+        </figure>
+        <div class="cart-bar-text">
+          <span id="cartBarItems">0 item</span>
+          <strong id="cartBarTotal">Rp 0</strong>
+        </div>
+      </div>
+      <div class="cart-bar-actions">
+        <button
+          class="btn-view-cart"
+          id="btnViewCart"
+          aria-haspopup="dialog"
+          aria-label="Lihat keranjang"
+        >
+          Lihat Cart
+        </button>
+        <button
+          class="btn-checkout-bar"
+          id="btnCheckoutBar"
+          aria-label="Checkout sekarang"
+        >
+          <i class="fa-solid fa-bolt" aria-hidden="true"></i>
+          Checkout
+        </button>
+      </div>
+    </div>
+
+    <!-- ─── MODAL: CART ──────────────────────────────────────────────────────── -->
+    <dialog id="modalCart" aria-labelledby="modalCartTitle" aria-modal="true">
+      <article class="modal-card modal-cart">
+        <header class="modal-header">
+          <h2 id="modalCartTitle">
+            <i class="fa-solid fa-cart-shopping" aria-hidden="true"></i>
+            Keranjang Belanja
+          </h2>
+          <button
+            class="modal-close"
+            aria-label="Tutup keranjang"
+            data-close="modalCart"
+          >
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+          </button>
+        </header>
+
+        <div
+          class="cart-items-list"
+          id="cartItemsList"
+          role="list"
+          aria-label="Item dalam keranjang"
+        >
+          <!-- rendered by JS -->
+        </div>
+
+        <footer class="modal-footer cart-footer">
+          <div class="cart-total-row">
+            <span>Total Belanja</span>
+            <strong id="cartModalTotal">Rp 0</strong>
+          </div>
+          <div class="cart-balance-row" id="cartBalanceRow">
+            <span>Saldo Anda</span>
+            <strong id="cartModalBalance">Rp 0</strong>
+          </div>
+          <button
+            class="btn-primary btn-checkout-modal"
+            id="btnCheckoutModal"
+            aria-label="Proses checkout"
+          >
+            <i class="fa-solid fa-bolt" aria-hidden="true"></i>
+            <span>Checkout Sekarang</span>
+          </button>
+        </footer>
+      </article>
+    </dialog>
+
+    <!-- ─── MODAL: TOP UP ────────────────────────────────────────────────────── -->
+    <dialog id="modalTopUp" aria-labelledby="modalTopUpTitle" aria-modal="true">
+      <article class="modal-card">
+        <header class="modal-header">
+          <h2 id="modalTopUpTitle">
+            <i class="fa-solid fa-wallet" aria-hidden="true"></i>
+            Top Up Saldo
+          </h2>
+          <button
+            class="modal-close"
+            aria-label="Tutup top up"
+            data-close="modalTopUp"
+          >
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+          </button>
+        </header>
+
+        <p class="modal-desc">Tambah saldo akun Anda (simulasi)</p>
+
+        <form id="formTopUp" novalidate aria-label="Form top up saldo">
+          <fieldset>
+            <legend class="sr-only">Data top up</legend>
+
+            <div class="topup-presets" aria-label="Pilihan nominal">
+              <button type="button" class="preset-btn" data-amount="10000">
+                Rp 10.000
+              </button>
+              <button type="button" class="preset-btn" data-amount="25000">
+                Rp 25.000
+              </button>
+              <button type="button" class="preset-btn" data-amount="50000">
+                Rp 50.000
+              </button>
+              <button type="button" class="preset-btn" data-amount="100000">
+                Rp 100.000
+              </button>
+            </div>
+
+            <div class="input-group">
+              <label for="topupAmount">Atau masukkan jumlah (Rp)</label>
+              <input
+                type="number"
+                id="topupAmount"
+                name="topupAmount"
+                min="1000"
+                placeholder="Contoh: 50000"
+                required
+                aria-required="true"
+                aria-describedby="topupAmount-error"
+              />
+              <p
+                id="topupAmount-error"
+                class="error-msg"
+                role="alert"
+                aria-live="polite"
+              ></p>
+            </div>
+          </fieldset>
+
+          <footer class="modal-footer">
+            <button type="button" class="btn-cancel" data-close="modalTopUp">
+              Batal
+            </button>
+            <button type="submit" id="btnSubmitTopUp" class="btn-primary">
+              <i class="fa-solid fa-wallet" aria-hidden="true"></i>
+              <span>Top Up</span>
+            </button>
+          </footer>
+        </form>
+      </article>
+    </dialog>
+
+    <!-- ─── TOAST ────────────────────────────────────────────────────────────── -->
+    <output
+      id="toast"
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
+    ></output>
+
+    <script src="js/config.js"></script>
+    <script src="js/member.js"></script>
+  </body>
+</html>

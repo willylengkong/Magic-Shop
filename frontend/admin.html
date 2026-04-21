@@ -152,7 +152,18 @@
                   <p class="stat-value" id="statBalance">
                     <span class="skeleton"></span>
                   </p>
-                  <p class="stat-sub">Modal tersedia</p>
+                  <div class="stat-card-footer">
+                    <p class="stat-sub">Modal tersedia</p>
+                    <button
+                      class="btn-stat-action"
+                      id="btnSetBalance"
+                      aria-haspopup="dialog"
+                      aria-label="Set saldo kas"
+                    >
+                      <i class="fa-solid fa-pen-line" aria-hidden="true"></i>
+                      Set Saldo
+                    </button>
+                  </div>
                 </div>
               </article>
 
@@ -268,7 +279,7 @@
                 aria-label="Terapkan filter tanggal"
               >
                 <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-                <span>Filter</span>
+                <span>Cari</span>
               </button>
               <button
                 class="btn-reset"
@@ -336,6 +347,21 @@
               </div>
             </div>
 
+            <!-- Search bar -->
+            <div class="filter-bar" role="search" aria-label="Cari stok barang">
+              <div class="filter-group filter-grow">
+                <label for="searchStock">Cari Barang</label>
+                <input
+                  type="search"
+                  id="searchStock"
+                  name="searchStock"
+                  placeholder="Cari berdasarkan nama barang..."
+                  autocomplete="off"
+                  class="search-input-plain"
+                />
+              </div>
+            </div>
+
             <!-- Table -->
             <div class="table-wrapper">
               <table aria-label="Tabel stok barang">
@@ -376,19 +402,14 @@
             <div class="filter-bar" role="search" aria-label="Cari member">
               <div class="filter-group filter-grow">
                 <label for="searchMember">Cari Member</label>
-                <div class="input-search-wrap">
-                  <i
-                    class="fa-solid fa-magnifying-glass"
-                    aria-hidden="true"
-                  ></i>
-                  <input
-                    type="search"
-                    id="searchMember"
-                    name="searchMember"
-                    placeholder="Cari berdasarkan nama atau email..."
-                    autocomplete="off"
-                  />
-                </div>
+                <input
+                  type="search"
+                  id="searchMember"
+                  name="searchMember"
+                  placeholder="Cari berdasarkan nama atau email..."
+                  autocomplete="off"
+                  class="search-input-plain"
+                />
               </div>
             </div>
 
@@ -398,6 +419,7 @@
                 <thead>
                   <tr>
                     <th scope="col">ID</th>
+                    <th scope="col">Nama</th>
                     <th scope="col">Email</th>
                     <th scope="col">Role</th>
                     <th scope="col">Total Order</th>
@@ -405,7 +427,7 @@
                 </thead>
                 <tbody id="membersTableBody">
                   <tr class="table-loading">
-                    <td colspan="4"><span class="skeleton"></span></td>
+                    <td colspan="5"><span class="skeleton"></span></td>
                   </tr>
                 </tbody>
               </table>
@@ -605,6 +627,90 @@
             <button type="submit" id="btnSubmitManual" class="btn-primary">
               <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
               <span>Simpan</span>
+            </button>
+          </footer>
+        </form>
+      </article>
+    </dialog>
+
+    <!-- ─── MODAL: SET SALDO ────────────────────────────────────────────────────── -->
+    <dialog
+      id="modalSetBalance"
+      aria-labelledby="modalSetBalanceTitle"
+      aria-modal="true"
+    >
+      <article class="modal-card">
+        <header class="modal-header">
+          <h2 id="modalSetBalanceTitle">
+            <i class="fa-solid fa-wallet" aria-hidden="true"></i>
+            Set Saldo Kas
+          </h2>
+          <button
+            class="modal-close"
+            aria-label="Tutup dialog"
+            data-close="modalSetBalance"
+          >
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+          </button>
+        </header>
+
+        <p class="modal-desc">
+          Update jumlah saldo kas toko · GET /admin/balance · POST
+          /admin/balance
+        </p>
+
+        <div class="balance-current-info" id="balanceCurrentInfo">
+          <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+          <span>Memuat saldo saat ini...</span>
+        </div>
+
+        <form id="formSetBalance" novalidate aria-label="Form set saldo kas">
+          <fieldset>
+            <legend class="sr-only">Data saldo</legend>
+
+            <div class="input-group">
+              <label for="balanceAmount">Jumlah Saldo Baru (Rp)</label>
+              <input
+                type="number"
+                id="balanceAmount"
+                name="balanceAmount"
+                min="0"
+                placeholder="Masukkan jumlah saldo"
+                required
+                aria-required="true"
+                aria-describedby="balanceAmount-error"
+              />
+              <p
+                id="balanceAmount-error"
+                class="error-msg"
+                role="alert"
+                aria-live="polite"
+              ></p>
+            </div>
+
+            <div class="input-group">
+              <label for="balanceNotes">Catatan (Opsional)</label>
+              <input
+                type="text"
+                id="balanceNotes"
+                name="balanceNotes"
+                maxlength="255"
+                placeholder="Contoh: Modal awal bulan April"
+              />
+            </div>
+          </fieldset>
+
+          <footer class="modal-footer">
+            <button
+              type="button"
+              class="btn-cancel"
+              data-close="modalSetBalance"
+            >
+              Batal
+            </button>
+            <button type="submit" id="btnSubmitBalance" class="btn-primary">
+              <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i>
+              <span>Simpan Saldo</span>
             </button>
           </footer>
         </form>

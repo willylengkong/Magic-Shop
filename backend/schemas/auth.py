@@ -19,3 +19,4 @@ class LoginResponse(BaseModel):
     user_id: int
     name: str
     email: str
+    role_id: int = 2

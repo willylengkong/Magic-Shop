@@ -27,7 +27,7 @@ def register(user: UserRegister):
 @router.post("/login", response_model=LoginResponse)
 def login(user: UserLogin):
     query = """
-        SELECT user_id, name, email, password 
+        SELECT user_id, name, email, password
         FROM users 
         WHERE email = %s
     """
@@ -37,7 +37,16 @@ def login(user: UserLogin):
     
     if not verify_password(user.password, result["password"]):
         raise HTTPException(status_code=401, detail="Password salah")
-    
+
+    # Ambil role_id jika kolom sudah ada, default 2 (member)
+    try:
+        role_result = fetch_one(
+            "SELECT role_id FROM users WHERE user_id = %s", (result["user_id"],)
+        )
+        role_id = role_result.get("role_id") or 2 if role_result else 2
+    except Exception:
+        role_id = 2
+
     history_query = "INSERT INTO histories (user_id, login_time) VALUES (%s, %s)"
     execute(history_query, (result["user_id"], datetime.now()))
     
@@ -45,7 +54,8 @@ def login(user: UserLogin):
         message="Login berhasil",
         user_id=result["user_id"],
         name=result["name"],
-        email=result["email"]
+        email=result["email"],
+        role_id=role_id,
     )
 
 @router.get("/user/{user_id}", response_model=UserResponse)

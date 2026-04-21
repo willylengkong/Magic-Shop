@@ -4,10 +4,10 @@ from typing import Any, Optional
 from contextlib import contextmanager
 
 DB_CONFIG = {
-    "host": "76.13.21.186",
+    "host": "localhost",
     "user": "root",
-    "password": "apotek123",
-    "database": "game_store_db",
+    "password": "",
+    "database": "game_store_db2",
     "port": 3306,
     "ssl_disabled": True,
     "autocommit": True,
