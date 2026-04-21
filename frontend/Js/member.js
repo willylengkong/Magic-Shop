@@ -628,12 +628,22 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   // View cart (button + summary area click)
-  const openCart = () => { renderCartModal(); openModal("modalCart"); };
+  const openCart = () => {
+    renderCartModal();
+    openModal("modalCart");
+  };
   document.getElementById("btnViewCart")?.addEventListener("click", openCart);
-  document.getElementById("cartBarSummary")?.addEventListener("click", openCart);
-  document.getElementById("cartBarSummary")?.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openCart(); }
-  });
+  document
+    .getElementById("cartBarSummary")
+    ?.addEventListener("click", openCart);
+  document
+    .getElementById("cartBarSummary")
+    ?.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        openCart();
+      }
+    });
 
   // Checkout (cart bar quick checkout)
   document
