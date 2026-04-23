@@ -3,6 +3,7 @@ from mysql.connector import pooling
 from typing import Any, Optional
 from contextlib import contextmanager
 
+# Konfigurasi Koneksi
 DB_CONFIG = {
     "host": "localhost",
     "user": "root",
@@ -14,6 +15,8 @@ DB_CONFIG = {
     "connection_timeout": 10
 }
 
+
+# Connection Pool
 _connection_pool = None
 
 def get_connection_pool():
@@ -29,6 +32,8 @@ def get_connection_pool():
 def get_connection():
     return get_connection_pool().get_connection()
 
+
+# Context Manager get_db_cursor
 @contextmanager
 def get_db_cursor(dictionary=True):
     conn = get_connection()
@@ -61,6 +66,7 @@ def execute_many(query: str, params_list: list[tuple]) -> int:
         conn.commit()
         return cursor.rowcount
 
+# transaction
 @contextmanager
 def transaction():
     conn = get_connection()

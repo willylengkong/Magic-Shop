@@ -223,10 +223,10 @@ async function loadHistory(startDate = "", endDate = "") {
           <td>${formatDate(order.order_date || order.payment_time)}</td>
           <td>${order.email || order.user_email || "-"}</td>
           <td>${order.total_items ?? "-"}</td>
-          <td>${order.total_amount ? formatRupiah(order.total_amount) : "-"}</td>
+          <td>${order.total_amount ? formatRupiah(order.total_amount) : order.total_paid ? formatRupiah(order.total_paid) : "-"}</td>
           <td>
-            <span class="badge ${order.payment_id ? "badge-paid" : "badge-pending"}">
-              ${order.payment_id ? "Lunas" : "Pending"}
+            <span class="badge ${order.status === "paid" ? "badge-paid" : "badge-pending"}">
+              ${order.status === "paid" ? "Lunas" : "Pending"}
             </span>
           </td>
         </tr>`,

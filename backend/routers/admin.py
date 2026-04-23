@@ -41,11 +41,23 @@ def dashboard():
 def get_orders(start_date: Optional[str] = Query(None), end_date: Optional[str] = Query(None)):
     if start_date and end_date:
         query = """
-            SELECT o.order_id, o.user_id, u.email, o.order_time,
-                   COALESCE(p.amount, 0) as total_paid,
-                   CASE WHEN p.payment_id IS NOT NULL THEN 'paid' ELSE 'pending' END as status
+            SELECT o.order_id,
+                   o.user_id,
+                   u.email,
+                   o.order_time,
+                   o.order_time AS order_date,
+                   p.payment_id,
+                   p.payment_time,
+                   COALESCE(od.total_items, 0) AS total_items,
+                   COALESCE(p.amount, 0) AS total_amount,
+                   CASE WHEN p.payment_id IS NOT NULL THEN 'paid' ELSE 'pending' END AS status
             FROM orders o
             JOIN users u ON o.user_id = u.user_id
+            LEFT JOIN (
+                SELECT order_id, SUM(quantity) AS total_items
+                FROM order_details
+                GROUP BY order_id
+            ) od ON o.order_id = od.order_id
             LEFT JOIN payments p ON o.order_id = p.order_id
             WHERE DATE(o.order_time) BETWEEN %s AND %s
             ORDER BY o.order_time DESC
@@ -53,11 +65,23 @@ def get_orders(start_date: Optional[str] = Query(None), end_date: Optional[str] 
         return fetch_all(query, (start_date, end_date))
     else:
         query = """
-            SELECT o.order_id, o.user_id, u.email, o.order_time,
-                   COALESCE(p.amount, 0) as total_paid,
-                   CASE WHEN p.payment_id IS NOT NULL THEN 'paid' ELSE 'pending' END as status
+            SELECT o.order_id,
+                   o.user_id,
+                   u.email,
+                   o.order_time,
+                   o.order_time AS order_date,
+                   p.payment_id,
+                   p.payment_time,
+                   COALESCE(od.total_items, 0) AS total_items,
+                   COALESCE(p.amount, 0) AS total_amount,
+                   CASE WHEN p.payment_id IS NOT NULL THEN 'paid' ELSE 'pending' END AS status
             FROM orders o
             JOIN users u ON o.user_id = u.user_id
+            LEFT JOIN (
+                SELECT order_id, SUM(quantity) AS total_items
+                FROM order_details
+                GROUP BY order_id
+            ) od ON o.order_id = od.order_id
             LEFT JOIN payments p ON o.order_id = p.order_id
             ORDER BY o.order_time DESC
         """
@@ -152,15 +176,31 @@ def delete_item(item_id: int):
 def get_members(search: Optional[str] = Query(None)):
     if search:
         query = """
-            SELECT user_id, name, email
-            FROM users
-            WHERE name LIKE %s OR email LIKE %s
+            SELECT u.user_id,
+                   u.name,
+                   u.email,
+                   COALESCE(u.role_id, 2) AS role_id,
+                   CASE WHEN COALESCE(u.role_id, 2) = 1 THEN 'Admin' ELSE 'Member' END AS role_name,
+                   COUNT(o.order_id) AS total_orders
+            FROM users u
+            LEFT JOIN orders o ON o.user_id = u.user_id
+            WHERE u.name LIKE %s OR u.email LIKE %s
+            GROUP BY u.user_id, u.name, u.email, u.role_id
+            ORDER BY u.user_id
         """
         return fetch_all(query, (f"%{search}%", f"%{search}%"))
     else:
         query = """
-            SELECT user_id, name, email
-            FROM users
+            SELECT u.user_id,
+                   u.name,
+                   u.email,
+                   COALESCE(u.role_id, 2) AS role_id,
+                   CASE WHEN COALESCE(u.role_id, 2) = 1 THEN 'Admin' ELSE 'Member' END AS role_name,
+                   COUNT(o.order_id) AS total_orders
+            FROM users u
+            LEFT JOIN orders o ON o.user_id = u.user_id
+            GROUP BY u.user_id, u.name, u.email, u.role_id
+            ORDER BY u.user_id
         """
         return fetch_all(query)
 
